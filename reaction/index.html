@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Reaction Time</title>
+  <style>
+    html {
+      font-family: Raleway, sans-serif;
+      font-size: 240px;
+      text-align: center;
+      text-transform: uppercase;
+    }
+    div {
+      position: absolute;
+      left: 50%;
+    }
+    p {
+      margin: 0;
+    }
+    .text {
+      height: 5em;
+      line-height: 1.66em;
+      width: 10em;
+      margin: -5em;
+      font-size: 0.1em;
+    }
+    .text :nth-child(odd) {
+      font-size: 24px;
+      letter-spacing: 12px;
+    }
+    .text :nth-child(even) {
+      font-size: 30px;
+      font-weight: 900;
+      letter-spacing: 10px;
+    }
+    .top {
+      top: 25%;
+    }
+    .bottom {
+      bottom: 25%;
+    }
+    #container {
+      top: 50%;
+      height: 1em;
+      line-height: 1em;
+      width: 1em;
+      box-sizing: border-box;
+      margin: -0.5em;
+      border: 2px solid black;
+    }
+    #blocker, a {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+    #blocker {
+      z-index: 1;
+      font-size: 36px;
+      font-weight: 900;
+      text-align: center;
+      text-transform: none;
+    }
+    .off, a {
+      background-color: white;
+    }
+    .on, a:visited {
+      background-color: red;
+    }
+  </style>
+  <link href='http://fonts.googleapis.com/css?family=Raleway:400,900' rel='stylesheet' type='text/css'>
+</head>
+<body>
+  <div class="text top"><p>This is a</p><p>reaction</p><p>game</p></div>
+  <div id="container">
+    <div id="blocker" class="off"></div>
+  </div>
+  <div class="text bottom"><p>Hit</p><p>space</p><p>to start</p></div>
+
+  <script>
+    var stepTime, currentLink, nextStep, paused = true, busy = false;
+    var container = document.querySelector('#container');
+    var blocker = document.querySelector('#blocker');
+    var urls = [], categories = {};
+
+    if (blocker.classList) {
+      blocker.addClass = function(className) {
+        this.classList.add(className);
+      };
+      blocker.removeClass = function(className) {
+        this.classList.remove(className);
+      };
+    } else {
+      blocker.addClass = function(className) {
+        this.className += ' ' + className;
+      };
+      blocker.removeClass = function(className) {
+        this.className = this.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
+      };
+    }
+
+    function populate(sites) {
+      containerChildren = [blocker];
+
+      function appendLink(url, categories) {
+        var element = document.createElement('a');
+        element.href = url;
+        element.setAttribute('data-categories', categories.join(' '));
+        containerChildren.push(container.insertBefore(element, containerChildren[ Math.ceil(Math.random() * containerChildren.length) ]));
+      }
+
+      for (var site in sites) {
+        if (sites.hasOwnProperty(site)) {
+          appendLink(site, sites[site]);
+        }
+      }
+
+    }
+
+    function step(duration) {
+      var timeUntilNext, index, children;
+      stepTime = new Date().getTime();
+
+      if (currentLink) {
+        container.removeChild(currentLink);
+      }
+
+      if (duration > 10000) {
+        nextStep = currentLink = false;
+        blocker.addClass('on');
+      } else {
+        children = container.children;
+        index = children.length - 1;
+
+        if (index) {
+          currentLink = children[ index ];
+        } else currentLink = false;
+
+        // run it again in [800, 1000)ms
+        timeUntilNext = Math.floor((Math.random() * 200) + 800);
+        nextStep = window.setTimeout(function() {
+          step(duration + timeUntilNext);
+        }, timeUntilNext);
+      }
+    }
+
+    function start() {
+      function countdown(stage) {
+        if (stage) {
+          blocker.textContent = stage;
+          window.setTimeout(function() {
+            countdown(stage - 1);
+          }, 500);
+        } else {
+          blocker.textContent = 'GO';
+          window.setTimeout(function() {
+            blocker.removeClass('off');
+            blocker.textContent = '';
+            busy = false;
+            step(0);
+          }, 500);
+        }
+      }
+      busy = true;
+      countdown(3);
+    }
+
+    function handleKeydown(e) {
+      if (!busy && (e.key || e.keyCode) === 32) {
+        if (paused) {
+          paused = false;
+          start();
+        } else {
+          if (nextStep) {
+            window.clearTimeout(nextStep);
+            urls.push(currentLink.href);
+            currentLink.getAttribute('data-categories').split(' ').forEach(function(category) {
+              if (categories[category] === undefined) {
+                categories[category] = 1;
+              } else ++categories[category];
+            });
+          } else {
+            blocker.removeClass('on');
+          }
+          blocker.addClass('off');
+          paused = true;
+          blocker.innerText = new Date().getTime() - stepTime + 'ms';
+        }
+      }
+    }
+
+    var request = new XMLHttpRequest();
+
+    request.open('GET', '../sites.json', true);
+
+    request.onload = function() {
+      if (request.status >= 200 && request.status < 400){
+        var sites = JSON.parse(request.responseText);
+        populate(sites);
+        window.addEventListener('keydown', handleKeydown, false);
+      }
+    };
+
+    request.send();
+  </script>
+</body>
+</html>
