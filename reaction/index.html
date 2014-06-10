@@ -76,12 +76,13 @@
   <div id="container">
     <div id="blocker" class="off"></div>
   </div>
-  <div class="text bottom"><p>Hit</p><p>space</p><p>to start</p></div>
+  <div class="text bottom"><p>Hit</p><p>space</p><p id="instructions">to start</p></div>
 
   <script>
     var stepTime, currentLink, nextStep, paused = true, busy = false;
     var container = document.querySelector('#container');
     var blocker = document.querySelector('#blocker');
+    var instructions = document.querySelector('#instructions');
     var urls = [], categories = {};
 
     if (blocker.classList) {
@@ -170,6 +171,7 @@
       if (!busy && (e.key || e.keyCode) === 32) {
         if (paused) {
           paused = false;
+          instructions.textContent = "when red";
           start();
         } else {
           if (nextStep) {
@@ -183,6 +185,7 @@
           } else {
             blocker.removeClass('on');
           }
+          instructions.textContent = "to retry";
           blocker.addClass('off');
           paused = true;
           blocker.innerText = new Date().getTime() - stepTime + 'ms';
