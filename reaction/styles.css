@@ -12,6 +12,7 @@ p {
   margin: 0;
 }
 .text {
+  z-index: -1;
   height: 5em;
   line-height: 1.66em;
   width: 10em;
