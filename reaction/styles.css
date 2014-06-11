@@ -79,7 +79,7 @@ p {
   background-color: white;
 }
 .dummy, a:visited {
-  background-color: #ea513f;
+  background-color: #ea4141;
 }
 
 /* #blocker inner text */
@@ -87,7 +87,7 @@ p {
   color: transparent;
 }
 .non-blocking .warning {
-  color: #ea513f;
+  color: #ea4141;
 }
 .blocking #ms {
   color: black;
