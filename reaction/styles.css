@@ -77,11 +77,8 @@ p {
 .blocking, a {
   background-color: white;
 }
-a:visited {
+.dummy, a:visited {
   background-color: #ea513f;
-}
-.dummy {
-  background-color: blue;
 }
 
 /* #blocker inner text */
