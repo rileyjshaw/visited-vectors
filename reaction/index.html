@@ -3,78 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <title>Reaction Time</title>
-  <style>
-    html {
-      font-family: Raleway, sans-serif;
-      font-size: 240px;
-      text-align: center;
-      text-transform: uppercase;
-    }
-    div {
-      position: absolute;
-      left: 50%;
-    }
-    p {
-      margin: 0;
-    }
-    .text {
-      height: 5em;
-      line-height: 1.66em;
-      width: 10em;
-      margin: -5em;
-      font-size: 0.1em;
-    }
-    .text :nth-child(odd) {
-      font-size: 24px;
-      letter-spacing: 12px;
-    }
-    .text :nth-child(even) {
-      font-size: 30px;
-      font-weight: 900;
-      letter-spacing: 10px;
-    }
-    .top {
-      top: 25%;
-    }
-    .bottom {
-      bottom: 25%;
-    }
-    #container {
-      top: 50%;
-      height: 1em;
-      line-height: 1em;
-      width: 1em;
-      box-sizing: border-box;
-      margin: -0.5em;
-      border: 2px solid black;
-    }
-    #blocker, a {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-    }
-    #blocker {
-      z-index: 1;
-      font-size: 36px;
-      font-weight: 900;
-      text-align: center;
-      text-transform: none;
-    }
-    .off, a {
-      background-color: white;
-    }
-    .on, a:visited {
-      background-color: red;
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
   <link href='http://fonts.googleapis.com/css?family=Raleway:400,900' rel='stylesheet' type='text/css'>
 </head>
 <body>
   <div class="text top"><p>This is a</p><p>reaction</p><p>game</p></div>
   <div id="container">
-    <div id="blocker" class="off"></div>
+    <div id="blocker">
+      <p class="warning top">Bad!</p>
+      <p id="ms"></p>
+      <p class="warning bottom">The box wasn't red.</p>
+      <div id="innerblocker"></div>
+    </div>
   </div>
   <div class="text bottom"><p>Hit</p><p>space</p><p id="instructions">to start</p></div>
 
@@ -82,24 +22,9 @@
     var stepTime, currentLink, nextStep, paused = true, busy = false;
     var container = document.querySelector('#container');
     var blocker = document.querySelector('#blocker');
+    var ms = document.querySelector('#ms');
     var instructions = document.querySelector('#instructions');
     var urls = [], categories = {};
-
-    if (blocker.classList) {
-      blocker.addClass = function(className) {
-        this.classList.add(className);
-      };
-      blocker.removeClass = function(className) {
-        this.classList.remove(className);
-      };
-    } else {
-      blocker.addClass = function(className) {
-        this.className += ' ' + className;
-      };
-      blocker.removeClass = function(className) {
-        this.className = this.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
-      };
-    }
 
     function populate(sites) {
       containerChildren = [blocker];
@@ -129,7 +54,7 @@
 
       if (duration > 10000) {
         nextStep = currentLink = false;
-        blocker.addClass('on');
+        blocker.className = 'dummy';
       } else {
         children = container.children;
         index = children.length - 1;
@@ -149,26 +74,29 @@
     function start() {
       function countdown(stage) {
         if (stage) {
-          blocker.textContent = stage;
+          ms.textContent = stage;
           window.setTimeout(function() {
             countdown(stage - 1);
           }, 500);
         } else {
-          blocker.textContent = 'GO';
+          ms.textContent = 'GO';
           window.setTimeout(function() {
-            blocker.removeClass('off');
-            blocker.textContent = '';
+            blocker.className = '';
+            ms.textContent = '';
             busy = false;
             step(0);
           }, 500);
         }
       }
       busy = true;
+      blocker.className = 'blocking';
       countdown(3);
     }
 
     function handleKeydown(e) {
-      if (!busy && (e.key || e.keyCode) === 32) {
+      var key = e.key || e.keyCode;
+
+      if (!busy && key === 32) {
         if (paused) {
           paused = false;
           instructions.textContent = "when red";
@@ -176,20 +104,22 @@
         } else {
           if (nextStep) {
             window.clearTimeout(nextStep);
+            blocker.className = 'non-blocking';
             urls.push(currentLink.href);
             currentLink.getAttribute('data-categories').split(' ').forEach(function(category) {
               if (categories[category] === undefined) {
                 categories[category] = 1;
               } else ++categories[category];
             });
-          } else {
-            blocker.removeClass('on');
           }
           instructions.textContent = "to retry";
-          blocker.addClass('off');
           paused = true;
-          blocker.innerText = new Date().getTime() - stepTime + 'ms';
+          ms.innerText = new Date().getTime() - stepTime + 'ms';
         }
+      } else if (key === 65) {
+        // prevent meta + a for select all
+        e.preventDefault();
+        return false;
       }
     }
 

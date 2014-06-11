@@ -1,0 +1,100 @@
+html {
+  font-family: Raleway, sans-serif;
+  font-size: 240px;
+  text-align: center;
+  text-transform: uppercase;
+}
+body > div {
+  position: absolute;
+  left: 50%;
+}
+p {
+  margin: 0;
+}
+.text {
+  height: 5em;
+  line-height: 1.66em;
+  width: 10em;
+  margin: -5em;
+  font-size: 0.1em;
+}
+.text :nth-child(odd) {
+  font-size: 24px;
+  letter-spacing: 12px;
+}
+.text :nth-child(even) {
+  font-size: 30px;
+  font-weight: 900;
+  letter-spacing: 10px;
+}
+.top {
+  top: 25%;
+}
+.bottom {
+  bottom: 25%;
+}
+
+#container {
+  top: 50%;
+  height: 1em;
+  line-height: 0.33em;
+  width: 1em;
+  box-sizing: border-box;
+  margin: -0.5em;
+  border: 2px solid black;
+
+  /* Prevents text selection */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+#blocker, #innerblocker, a {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+/* #blocker can be in 3 states:
+ * .blocking
+ *   white background to obscure the link color behind it
+ * .non-blocking
+ *   transparent background to reveal the link color behind it
+ * .dummy
+ *   red background to simulate :visited (ensures game isn't too long)
+ */
+#blocker {
+  z-index: 1;
+  font-size: 36px;
+  font-weight: 900;
+  text-align: center;
+}
+.blocking, a {
+  background-color: white;
+}
+.dummy, a:visited {
+  background-color: #ea513f;
+}
+
+/* #blocker inner text */
+.warning {
+  color: transparent;
+}
+.non-blocking .warning {
+  color: #ea513f;
+}
+.blocking #ms {
+  color: black;
+}
+#ms {
+  text-transform: none;
+  color: white;
+}
+#blocker .bottom {
+  font-size: 16px;
+}
