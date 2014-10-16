@@ -4,13 +4,16 @@ html {
   text-align: center;
   text-transform: uppercase;
 }
+
 body > div {
   position: absolute;
   left: 50%;
 }
+
 p {
   margin: 0;
 }
+
 .text {
   z-index: -1;
   height: 5em;
@@ -19,18 +22,22 @@ p {
   margin: -5em;
   font-size: 0.1em;
 }
+
 .text :nth-child(odd) {
   font-size: 24px;
   letter-spacing: 12px;
 }
+
 .text :nth-child(even) {
   font-size: 30px;
   font-weight: 900;
   letter-spacing: 10px;
 }
+
 .top {
   top: 25%;
 }
+
 .bottom {
   bottom: 25%;
 }
@@ -75,27 +82,38 @@ p {
   font-weight: 900;
   text-align: center;
 }
-.blocking, a {
+
+.blocking #blocker, a {
   background-color: white;
 }
-.dummy, a:visited {
-  background-color: #ea4141;
+
+/* speeds up painting */
+.blocking a, .dummy a {
+  display: none;
+}
+
+.dummy #blocker, a:visited {
+  background-color: red;
 }
 
 /* #blocker inner text */
 .warning {
   color: transparent;
 }
+
 .non-blocking .warning {
-  color: #ea4141;
+  color: red;
 }
+
 .blocking #ms {
   color: black;
 }
+
 #ms {
   text-transform: none;
   color: white;
 }
+
 #blocker .bottom {
   font-size: 16px;
 }
