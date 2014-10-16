@@ -34,7 +34,7 @@
 
     if (duration > 10000) {
       nextStep = currentLink = false;
-      blocker.className = 'dummy';
+      container.className = 'dummy';
     } else {
       children = container.children;
       index = children.length - 1;
@@ -61,7 +61,7 @@
       } else {
         ms.textContent = 'GO';
         window.setTimeout(function() {
-          blocker.className = '';
+          container.className = '';
           ms.textContent = '';
           busy = false;
           step(0);
@@ -69,7 +69,7 @@
       }
     }
     busy = true;
-    blocker.className = 'blocking';
+    container.className = 'blocking';
     countdown(3);
   }
 
@@ -84,7 +84,7 @@
       } else {
         if (nextStep) {
           window.clearTimeout(nextStep);
-          blocker.className = 'non-blocking';
+          container.className = 'non-blocking';
           urls.push(currentLink.href);
           currentLink.getAttribute('data-categories').split(' ').forEach(function(category) {
             if (categories[category] === undefined) {

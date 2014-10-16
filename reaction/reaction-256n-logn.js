@@ -1,4 +1,4 @@
-
+// ;(function(window) {
   var sharedState = {
     stepTime: null,
     currentChunk: [],
@@ -180,3 +180,4 @@
   };
 
   request.send();
+// })(this);
