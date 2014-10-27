@@ -1,12 +1,18 @@
 ;(function(window) {
   var sharedState = {
+    // lets us end the game after a minute
+    gameStartTime: null,
     // lets us check for a long period of activity and pop
     // up a dummy element so that they don't get bored
-    startTime: null,
+    chunkStartTime: null,
     // lets us display their score in ms
     stepTime: null,
+    // lets us cancel the next step if spacebar is clicked
     nextStep: null,
+    // list of URLs being processed
     currentChunk: [],
+    // boolean flag, true during the render step
+    isRendering: false,
     // a stack for the step() function; simple recursive traversal of the
     // tree on the call stack isn't going to cut it since we need to wait
     // for user input to evaluate a branch's truthiness
@@ -46,15 +52,25 @@
     sharedState.DOM.anchors = Array.prototype.slice.call(container.children, 1);
   }
 
+  // TODO: implement this
+  function showResults() {
+    alert("you're done! check the console...");
+    console.log('You\'ve visited:');
+    console.log(sharedState.visitedUrls);
+    console.log('Which means that you probably like:');
+    console.log(sharedState.categories);
+  }
+
   function getNextChunk () {
     // pop the sites from sharedState.urls
     return sharedState.urls.splice(-sharedState.n);
   }
 
+  // updates the anchor elements' hrefs to a passed URL chunk
   function populate (sites) {
     var href, n = sharedState.n;
     for (var i = 0; i < n; i++) {
-      href = sites[i];
+      href = (sites[i] || {}).url;
       for (var j = i, _len = n * 256; j < _len; j += n) {
         if (href || sharedState.DOM.anchors[j].href !== '') {
           sharedState.DOM.anchors[j].href = href;
@@ -63,11 +79,19 @@
     }
   }
 
-  function step () {
+  // the main step function; cb is called after render, if provided.
+  function step (cb) {
+    var currentTime = new Date().getTime();
     var nextChunk, currentLength = sharedState.currentChunk.length;
 
-    // if we've gone 15s without a hit, simulate one so they don't get bored
-    if (new Date().getTime() - sharedState.startTime > 15000) {
+    // if the game's been going for over 2m and we're not searching
+    // a tree, show their results
+    if (
+      currentTime - sharedState.gameStartTime > 40000 &&
+      currentLength !== sharedState.n
+    ) showResults();
+    // if we've gone 20s without a hit, simulate one so they don't get bored
+    else if (currentTime - sharedState.chunkStartTime > 20000) {
       // handleKeydown will notice that nextStep is null and not run
       // splitToStack, avoiding a false positive
       sharedState.nextStep = null;
@@ -84,24 +108,31 @@
         splitToStack(nextChunk);
         step();
       } else {
-        // this is going to queue a big render...
+        // populate is going to queue a big render...
+        sharedState.isRendering = true;
         populate(nextChunk);
         // ...so we async this so that state only changes after the render...
         window.setImmediate(function () {
           // ...then push it to the back of the task queue again after render
           // to let keyEvents resolve first.
+          //handleKeydown({key: 32});
           window.setImmediate(function () {
             // the render is done. hurrah.
+            sharedState.isRendering = false;
             sharedState.stepTime = new Date().getTime();
+
+            // run the callback if it exists
+            if (typeof cb === 'function') cb();
 
             // we're safe to change state now, since handleKeydown will
             // have already passed the old state to splitToStack
             sharedState.currentChunk = nextChunk;
 
-            // if we're not paused, step again in [1000, 1200)ms + render time.
+            // if we're not paused, step again in [1000, 1200)ms + render time
+            //
             // longer than linear version to (hopefully) avoid someone hitting
-            // spacebar during render, which causes awkwardness (slow score
-            // or "bad" when a decent score is expected)
+            // spacebar during render, which causes awkwardness (rendering the
+            // next step, rerendering the current step, then displaying score)
             if (!sharedState.paused) {
               sharedState.nextStep = window.setTimeout(function () {
                 step();
@@ -121,17 +152,20 @@
           countdown(stage - 1);
         }, 500);
       } else {
+        if (!sharedState.gameStartTime) {
+          sharedState.gameStartTime = new Date().getTime();
+        }
+
         sharedState.DOM.ms.textContent = '';
         repaint(sharedState.DOM.blocker); // make sure...
 
         // let "go" render
         window.setImmediate(function () {
-          // also set stepTime in case they click before the first render
-          sharedState.stepTime = sharedState.startTime = new Date().getTime();
+          sharedState.chunkStartTime = new Date().getTime();
           sharedState.DOM.container.className = '';
           sharedState.DOM.ms.textContent = '';
-          sharedState.inCountdown = false;
-          step();
+          // step and set inCountdown to false after the first render
+          step(function () { sharedState.inCountdown = false; });
         });
       }
     }
@@ -147,7 +181,14 @@
     // if array === sharedState.currentChunk it will be mutated,
     // which is a good thing because it it will now have
     // a different length for the check in step()
-    if (!half) sharedState.visitedUrls.push(array.pop());
+    if (!half) {
+      var visited = array.pop();
+      var categories = sharedState.categories;
+      sharedState.visitedUrls.push(visited.url);
+      visited.categories.forEach(function (category) {
+        if (!categories[category]++) categories[category] = 1;
+      });
+    }
     // else split it in two and push it to the stack
     else sharedState.steps.push(array.slice(0, half), array.slice(half));
   }
@@ -155,24 +196,32 @@
   function handleKeydown (e) {
     var key = e.key || e.keyCode;
 
+    // if space is hit and we're not already counting down...
     if (!sharedState.inCountdown && key === 32) {
+      // if we were paused, start it up
       if (sharedState.paused) {
         sharedState.paused = false;
         sharedState.DOM.instructions.textContent = 'when red';
         start();
-      } else {
+      }
+      // if we were playing, pause
+      else {
+        // move down the tree if we're not looking at a dummy positive
         if (sharedState.nextStep) {
           window.clearTimeout(sharedState.nextStep);
           sharedState.DOM.container.className = 'non-blocking';
           splitToStack(sharedState.currentChunk);
         }
+        // jump back to tbe old hrefs if spacebar was hit during a render
+        if (sharedState.isRendering) populate(sharedState.currentChunk);
         sharedState.DOM.instructions.textContent = 'to retry';
-        sharedState.paused = true;
-        sharedState.DOM.ms.innerText =
+        sharedState.DOM.ms.textContent =
           new Date().getTime() - sharedState.stepTime + 'ms';
+        sharedState.paused = true;
       }
-    } else if (key === 65) {
-      // prevent meta + a for select all
+    }
+    // prevent meta + a for select all
+    else if (key === 65) {
       e.preventDefault();
       return false;
     }
@@ -189,7 +238,10 @@
 
       for (var url in sites) {
         if (sites.hasOwnProperty(url)) {
-          sharedState.urls.push(url); // TODO: categories at sites[url]
+          sharedState.urls.push({
+            url: url,
+            categories: sites[url]
+          });
         }
       }
 
