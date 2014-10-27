@@ -32,9 +32,22 @@
       instructions: document.getElementById('instructions')
     },
     urls: [],
+    probed: 0,
     visitedUrls: [],
     categories: {}
   };
+
+  // Fisher-Yates shuffle, adapted from lodash
+  function shuffle (array) {
+    var index = -1, length = array.length, result = Array(length);
+
+    array.forEach(function (value) {
+      var rand = Math.floor(Math.random() * (++index + 1));
+      result[index] = result[rand];
+      result[rand] = value;
+    });
+    return result;
+  }
 
   function repaint (el) {
     var display = el.style.display;
@@ -49,7 +62,8 @@
           'It is 100% client-side; no data is recorded!\n\n:-)');
     alert('The game lasts for a minute; feel free to keep playing if you ' +
           ' wish to improve your results.\n\nAll code is on GitHub and ' +
-          'feedback is very welcome.');
+          'feedback is very welcome.\n\nThis game will not work in your ' +
+          'browser\'s "private browsing" or "incognito" mode.');
   }
 
   function initialize () {
@@ -66,16 +80,27 @@
   }
 
   function showResults() {
-    alert('You\'re done! Check the console...');
+    alert('Minute\'s up! Check the console...');
     console.log('You\'ve visited:');
     console.log(sharedState.visitedUrls);
-    console.log('Which means that you probably like:');
+    console.log('Which means that you might like:');
     console.log(sharedState.categories);
+    console.log('We\'ve probed ' + sharedState.probed + ' sites so far... ' +
+                'keep playing if you\'re curious :-)');
+
+    // reset gameStartTime etc. in case they want to keep playing
+    sharedState.gameStartTime = null;
+    sharedState.paused = true;
+    sharedState.inCountdown = false;
+    sharedState.DOM.container.className = 'blocking';
+    sharedState.DOM.instructions.textContent = 'to retry';
   }
 
   function getNextChunk () {
+    var n = sharedState.n;
+    sharedState.probed += n;
     // pop the sites from sharedState.urls
-    return sharedState.urls.splice(-sharedState.n);
+    return sharedState.urls.splice(-n);
   }
 
   // updates the anchor elements' hrefs to a passed URL chunk
@@ -96,14 +121,14 @@
     var now = new Date().getTime();
     var nextChunk, currentLength = sharedState.currentChunk.length;
 
-    // if the game's been going for over 2m and we're not searching
+    // if the game's been going for over 1m and we're not searching
     // a tree, show their results
     if (
-      now - sharedState.gameStartTime > 120000 &&
-      currentLength !== sharedState.n
+      now - sharedState.gameStartTime > 60000 &&
+      currentLength === sharedState.n
     ) showResults();
-    // if we've gone 20s without a hit, simulate one so they don't get bored
-    else if (now - sharedState.chunkStartTime > 20000) {
+    // if we've gone 18s without a hit, simulate one so they don't get bored
+    else if (now - sharedState.chunkStartTime > 18000) {
       // handleKeydown will notice that nextStep is null and not run
       // splitToStack, avoiding a false positive
       sharedState.nextStep = null;
@@ -128,16 +153,15 @@
         populate(nextChunk);
         // ...so we async this so that state only changes after the render...
         window.setImmediate(function () {
-          // ...then push it to the back of the task queue again after render
-          // to let keyEvents resolve first.
-          //handleKeydown({key: 32});
+          // run the callback if it exists
+          if (typeof cb === 'function') cb();
+          // ...then push the rest to the back of the task queue
+          // again to let keyEvents resolve first.
           window.setImmediate(function () {
             // the render is done. hurrah.
             sharedState.isRendering = false;
             sharedState.stepTime = new Date().getTime();
 
-            // run the callback if it exists
-            if (typeof cb === 'function') cb();
 
             // we're safe to change state now, since handleKeydown will
             // have already passed the old state to splitToStack
@@ -165,7 +189,7 @@
         sharedState.DOM.ms.textContent = stage ? stage : 'GO';
         window.setTimeout(function () {
           countdown(stage - 1);
-        }, 500);
+        }, 350);
       } else {
         if (!sharedState.gameStartTime) {
           sharedState.gameStartTime = new Date().getTime();
@@ -185,6 +209,8 @@
       }
     }
     sharedState.inCountdown = true;
+    // hide the evidence!
+    sharedState.DOM.ms.textContent = '';
     sharedState.DOM.container.className = 'blocking';
     countdown(3);
   }
@@ -254,16 +280,16 @@
   request.onload = function () {
     if (request.status >= 200 && request.status < 400){
       var sites = JSON.parse(request.responseText);
-      var userAgent = navigator.userAgent||navigator.vendor||window.opera;
+      var userAgent = navigator.userAgent || navigator.vendor || window.opera;
 
-      for (var url in sites) {
-        if (sites.hasOwnProperty(url)) {
-          sharedState.urls.push({
+      // convert recieved object to a shuffled array & store it in sharedState
+      sharedState.urls =
+        shuffle(Object.keys(sites).map(function (url) {
+          return {
             url: url,
             categories: sites[url]
-          });
-        }
-      }
+          };
+        }));
 
       initialize();
 

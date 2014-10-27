@@ -36,7 +36,7 @@ all_interests = {}
 for i, interest in enumerate(interests):
     print('Retreiving {}, ({} / {})'.format(interest, i + 1, len(interests)))
 
-    url = 'http://feedly.com/v3/search/feeds?q='+interest+'&n=200'
+    url = 'http://feedly.com/v3/search/feeds?q='+interest+'&n=100'
     # python 2 return str, python 3 return bytes
     response = request.urlopen(url).read()
     if isinstance(response, bytes):
@@ -47,7 +47,7 @@ for i, interest in enumerate(interests):
 
     for result in results:
         if 'website' in result:
-            all_interests[interest].append(result['website'])
+            all_interests[interest].append(result['website'].rstrip('/'))
 
 
 by_url = {}
