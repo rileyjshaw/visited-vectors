@@ -91,7 +91,6 @@
     // reset gameStartTime etc. in case they want to keep playing
     sharedState.gameStartTime = null;
     sharedState.paused = true;
-    sharedState.inCountdown = false;
     sharedState.DOM.container.className = 'blocking';
     sharedState.DOM.instructions.textContent = 'to retry';
   }
@@ -126,9 +125,14 @@
     if (
       now - sharedState.gameStartTime > 60000 &&
       currentLength === sharedState.n
-    ) showResults();
+    ) {
+      if (typeof cb === 'function') cb();
+      showResults();
+    }
     // if we've gone 18s without a hit, simulate one so they don't get bored
     else if (now - sharedState.chunkStartTime > 18000) {
+      if (typeof cb === 'function') cb();
+
       // handleKeydown will notice that nextStep is null and not run
       // splitToStack, avoiding a false positive
       sharedState.nextStep = null;
@@ -145,7 +149,7 @@
       // link in it so we can skip that check & dive straight into it
       if (currentLength !== sharedState.n && currentLength === nextChunk.length) {
         splitToStack(nextChunk);
-        step();
+        step(cb);
       } else {
         // populate is going to queue a big render...
         sharedState.isRendering = true;
@@ -153,15 +157,15 @@
         populate(nextChunk);
         // ...so we async this so that state only changes after the render...
         window.setImmediate(function () {
-          // run the callback if it exists
-          if (typeof cb === 'function') cb();
-          // ...then push the rest to the back of the task queue
-          // again to let keyEvents resolve first.
+          // ...then push it to the back of the task queue
+          // again to let keyHandler resolve first.
           window.setImmediate(function () {
             // the render is done. hurrah.
             sharedState.isRendering = false;
             sharedState.stepTime = new Date().getTime();
 
+            // run the callback if it exists
+            if (typeof cb === 'function') cb();
 
             // we're safe to change state now, since handleKeydown will
             // have already passed the old state to splitToStack
