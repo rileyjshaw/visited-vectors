@@ -7,6 +7,8 @@
     chunkStartTime: null,
     // lets us display their score in ms
     stepTime: null,
+    // lets us be more friendly with scores if they hit during a render
+    preRenderTime: null,
     // lets us cancel the next step if spacebar is clicked
     nextStep: null,
     // list of URLs being processed
@@ -81,21 +83,23 @@
 
   // the main step function; cb is called after render, if provided.
   function step (cb) {
-    var currentTime = new Date().getTime();
+    var now = new Date().getTime();
     var nextChunk, currentLength = sharedState.currentChunk.length;
 
     // if the game's been going for over 2m and we're not searching
     // a tree, show their results
     if (
-      currentTime - sharedState.gameStartTime > 120000 &&
+      now - sharedState.gameStartTime > 120000 &&
       currentLength !== sharedState.n
     ) showResults();
     // if we've gone 20s without a hit, simulate one so they don't get bored
-    else if (currentTime - sharedState.chunkStartTime > 20000) {
+    else if (now - sharedState.chunkStartTime > 20000) {
       // handleKeydown will notice that nextStep is null and not run
       // splitToStack, avoiding a false positive
       sharedState.nextStep = null;
       sharedState.DOM.container.className = 'dummy';
+      // update stepTime once the dummy color renders (should be super fast)
+      window.setImmediate(function() { sharedState.stepTime = now; });
     } else {
       nextChunk = sharedState.steps.length ?
         sharedState.steps.pop() :
@@ -110,6 +114,7 @@
       } else {
         // populate is going to queue a big render...
         sharedState.isRendering = true;
+        sharedState.preRenderTime = new Date().getTime();
         populate(nextChunk);
         // ...so we async this so that state only changes after the render...
         window.setImmediate(function () {
@@ -194,7 +199,7 @@
   }
 
   function handleKeydown (e) {
-    var key = e.key || e.keyCode;
+    var key = e.key || e.keyCode, now;
 
     // if space is hit and we're not already counting down...
     if (!sharedState.inCountdown && key === 32) {
@@ -206,18 +211,23 @@
       }
       // if we were playing, pause
       else {
+        sharedState.paused = true;
+
         // move down the tree if we're not looking at a dummy positive
         if (sharedState.nextStep) {
           window.clearTimeout(sharedState.nextStep);
           sharedState.DOM.container.className = 'non-blocking';
           splitToStack(sharedState.currentChunk);
         }
-        // jump back to tbe old hrefs if spacebar was hit during a render
-        if (sharedState.isRendering) populate(sharedState.currentChunk);
+        // jump back to the old hrefs if spacebar was hit during a render
+        if (sharedState.isRendering) {
+          now = sharedState.preRenderTime;
+          populate(sharedState.currentChunk);
+        } else now = new Date().getTime();
+
+        // update the container text
+        sharedState.DOM.ms.textContent = now - sharedState.stepTime + 'ms';
         sharedState.DOM.instructions.textContent = 'to retry';
-        sharedState.DOM.ms.textContent =
-          new Date().getTime() - sharedState.stepTime + 'ms';
-        sharedState.paused = true;
       }
     }
     // prevent meta + a for select all
