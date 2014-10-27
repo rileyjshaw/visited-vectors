@@ -43,8 +43,19 @@
     el.style.display = display;
   }
 
+  function showAbout () {
+    alert('This proof-of-concept combines a CSS n-to-2n decoder circuit, ' +
+          'search trees, and the CSS :visited selector to steal history. ' +
+          'It is 100% client-side; no data is recorded!\n\n:-)');
+    alert('The game lasts for a minute; feel free to keep playing if you ' +
+          ' wish to improve your results.\n\nAll code is on GitHub and ' +
+          'feedback is very welcome.');
+  }
+
   function initialize () {
     var container = sharedState.DOM.container;
+
+    showAbout();
 
     // fill the container with 256n blank anchors
     var i = sharedState.n * 256;
@@ -54,9 +65,8 @@
     sharedState.DOM.anchors = Array.prototype.slice.call(container.children, 1);
   }
 
-  // TODO: implement this
   function showResults() {
-    alert("you're done! check the console...");
+    alert('You\'re done! Check the console...');
     console.log('You\'ve visited:');
     console.log(sharedState.visitedUrls);
     console.log('Which means that you probably like:');
