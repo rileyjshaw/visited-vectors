@@ -87,7 +87,7 @@
     // if the game's been going for over 2m and we're not searching
     // a tree, show their results
     if (
-      currentTime - sharedState.gameStartTime > 40000 &&
+      currentTime - sharedState.gameStartTime > 120000 &&
       currentLength !== sharedState.n
     ) showResults();
     // if we've gone 20s without a hit, simulate one so they don't get bored
