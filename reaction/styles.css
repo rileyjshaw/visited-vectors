@@ -172,3 +172,10 @@ p {
 
   }
 }
+
+.sweet-alert {
+  margin-left: -273px;
+  padding: 17px 34px;
+  font-size: 16px;
+  text-transform: none;
+}

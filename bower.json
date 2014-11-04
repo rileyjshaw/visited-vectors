@@ -1,0 +1,22 @@
+{
+  "name": "visited-vectors",
+  "version": "1.0.0",
+  "homepage": "https://github.com/rileyjshaw/visited-vectors",
+  "authors": [
+    "Riley Shaw <rileyjshaw@gmail.com>"
+  ],
+  "description": "Seemingly innocent games that can trick you into revealing your browser history.",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "sweetalert": "~0.3.1",
+    "setImmediate": "YuzuJS/setImmediate#~1.0.2"
+  }
+}

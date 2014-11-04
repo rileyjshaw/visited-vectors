@@ -57,13 +57,19 @@
   }
 
   function showAbout () {
-    alert('This proof-of-concept combines a CSS n-to-2n decoder circuit, ' +
-          'search trees, and the CSS :visited selector to steal history. ' +
-          'It is 100% client-side; no data is recorded!\n\n:-)');
-    alert('The game lasts for a minute; feel free to keep playing if you ' +
-          ' wish to improve your results.\n\nAll code is on GitHub and ' +
-          'feedback is very welcome.\n\nThis game will not work in your ' +
-          'browser\'s "private browsing" or "incognito" mode.');
+    swal({
+      title: 'Reaction Game',
+      text: 'This proof-of-concept combines a CSS n-to-2n decoder circuit, ' +
+        'search trees, and the CSS :visited selector to steal history. ' +
+        'It is 100% client-side; no data is recorded!',
+      confirmButtonText: 'Continue',
+      closeOnConfirm: false
+    }, function(){
+      swal('Reaction Game', 'The game lasts for a minute; feel free to keep playing if you ' +
+        ' wish to improve your results.\n\nAll code is on GitHub and ' +
+        'feedback is very welcome.\n\nThis game will not work in your ' +
+        'browser\'s private browsing or incognito modes.');
+    });
   }
 
   function initialize () {
@@ -80,7 +86,7 @@
   }
 
   function showResults() {
-    alert('Minute\'s up! Check the console...');
+    swal('Minute\'s up!', 'Check the console...', 'success');
     console.log('You\'ve visited:');
     console.log(sharedState.visitedUrls);
     console.log('Which means that you might like:');
