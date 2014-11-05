@@ -103,9 +103,45 @@
     }
   }
 
+  function showAbout (fn) {
+    swal({
+      title: 'Reaction Game',
+      text: 'This proof-of-concept combines a CSS n-to-2n decoder circuit, ' +
+        'search trees, and the CSS :visited selector to steal history. ' +
+        'It is 100% client-side; no data is recorded!',
+      confirmButtonText: 'Continue',
+      closeOnConfirm: false
+    }, function () {
+      swal('Reaction Game', 'The game lasts for a minute; feel free to keep playing if you ' +
+        ' wish to improve your results.\n\nAll code is on GitHub and ' +
+        'feedback is very welcome.\n\nThis game will not work in your ' +
+        'browser\'s private browsing or incognito modes.');
+    }, fn);
+  }
+
+  function showResults() {
+    swal('Minute\'s up!', 'Check the console...', 'success');
+    console.log('You\'ve visited:');
+    console.log(sharedState.visitedUrls);
+    console.log('Which means that you might like:');
+    console.log(sharedState.categories);
+    console.log('We\'ve probed ' + sharedState.probed + ' sites so far... ' +
+                'keep playing if you\'re curious :-)');
+
+    // reset gameStartTime etc. in case they want to keep playing
+    sharedState.gameStartTime = null;
+    sharedState.paused = true;
+    sharedState.DOM.container.className = 'blocking';
+    sharedState.DOM.instructions.textContent = 'to retry';
+  }
+
   var request = new XMLHttpRequest();
 
   request.open('GET', '../sites.json', true);
+
+  showAbout(function () {
+    alert('hello');
+  });
 
   request.onload = function() {
     if (request.status >= 200 && request.status < 400){
