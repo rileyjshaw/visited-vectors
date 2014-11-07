@@ -269,7 +269,7 @@
               // we're safe to change state now, since handleKeydown will
               // have already passed the old state to splitToStack
               sharedState.currentChunk = nextChunk;
-gameOver();
+
               // if we're not paused, step again in [1000, 1200)ms + render time
               //
               // longer than linear version to (hopefully) avoid someone hitting
