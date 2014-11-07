@@ -1,4 +1,4 @@
-;(function(window) {
+;(function (window) {
   var userAgent = navigator.userAgent || navigator.vendor || window.opera;
   var isMobile = /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i.test(userAgent)||/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(userAgent.substr(0,4));
   var sharedState = {
@@ -58,12 +58,12 @@
     el.style.display = display;
   }
 
-  function showAbout (fn) {
+  function alertInfo (fn) {
     swal({
       title: 'Reaction Game',
       text: 'This proof-of-concept combines a CSS n-to-2n decoder circuit, ' +
         'search trees, and the CSS :visited selector to steal history. ' +
-        'It is 100% client-side; no data is recorded!',
+        'It is 100% client-side; no data is recorded, I promise!',
       confirmButtonText: 'Continue',
       closeOnConfirm: false
     }, function () {
@@ -77,6 +77,54 @@
     });
   }
 
+  function alertResults (final) {
+    var visitedUrls = sharedState.visitedUrls, visLength = visitedUrls.length;
+    var categories, top4;
+
+    if (visLength) {
+      categories = sharedState.categories;
+      // sort the categories in descending order and pick 4 of the most common
+      top4 = Object.keys(categories).sort(function (a, b) {
+        return categories[b] - categories[a];
+      }).slice(0, 4).join('\n');
+
+      swal({
+        title: final ? 'Finished!' : 'We found something!',
+        text: 'We probed ' + sharedState.probed + ' sites and found ' +
+          visLength + ' matches in your history. It looks like you ' +
+          'might be interested in:\n\n ' + top4 + '\n\nCheck the console ' +
+          'for details' + (final ? '.' : ', and keep playing if you\'re ' +
+          'curious :-)'),
+        type: 'success',
+        confirmButtonText: final ? 'Retry' : 'Okay'
+      }, final);
+
+      console.log('You\'ve visited:');
+      console.log(visitedUrls);
+      console.log('Which means that you might like:');
+      console.log(categories);
+
+    } else {
+      swal({
+        title: final ? 'Finished!' : 'Hmm...',
+        text: 'We' + (final ? '' : '\'ve') + ' probed ' + sharedState.probed +
+          ' sites' + (final ? '' : ' so far') + ' and still haven\'t come up ' +
+          'with any matches.\n\nIf your browser is in private browsing ' +
+          '(incognito) mode or if you recently cleared your history, this ' +
+          'attack won\'t work.' + (final ? '' : ' We might have just gotten ' +
+          'unlucky so feel free to keep playing!'),
+        type: 'error',
+        confirmButtonText: final ? 'Retry' : 'Okay'
+      }, final);
+    }
+
+    // reset gameStartTime etc. in case they want to keep playing
+    sharedState.gameStartTime = null;
+    sharedState.paused = true;
+    sharedState.DOM.container.className = 'blocking';
+    sharedState.DOM.instructions.textContent = 'to retry';
+  }
+
   function initialize () {
     // update copy for mobile devices
     if (isMobile) {
@@ -85,7 +133,7 @@
     }
 
     // show info screens
-    showAbout(function () {
+    alertInfo(function () {
       var request, container, i;
 
       // set event listeners only after the last info screen
@@ -131,27 +179,23 @@
     sharedState.DOM.anchors = Array.prototype.slice.call(container.children, 1);
   }
 
-  function showResults() {
-    swal('Minute\'s up!', 'Check the console...', 'success');
-    console.log('You\'ve visited:');
-    console.log(sharedState.visitedUrls);
-    console.log('Which means that you might like:');
-    console.log(sharedState.categories);
-    console.log('We\'ve probed ' + sharedState.probed + ' sites so far... ' +
-                'keep playing if you\'re curious :-)');
-
-    // reset gameStartTime etc. in case they want to keep playing
-    sharedState.gameStartTime = null;
-    sharedState.paused = true;
-    sharedState.DOM.container.className = 'blocking';
-    sharedState.DOM.instructions.textContent = 'to retry';
+  function gameOver () {
+    alertResults(location.reload.bind(location));
+    // blocks further keypresses
+    sharedState.inCountdown = true;
+    return null;
   }
 
   function getNextChunk () {
-    var n = sharedState.n;
-    sharedState.probed += n;
     // pop the sites from sharedState.urls
-    return sharedState.urls.splice(-n);
+    var n = sharedState.n;
+    var nextChunk = sharedState.urls.splice(-n);
+    var chunkLength = nextChunk.length;
+
+    if (chunkLength) {
+      sharedState.probed += chunkLength;
+      return nextChunk;
+    } else return gameOver();
   }
 
   // updates the anchor elements' hrefs to a passed URL chunk
@@ -176,10 +220,11 @@
     // a tree, show their results
     if (
       now - sharedState.gameStartTime > 60000 &&
-      currentLength === sharedState.n
+      currentLength === sharedState.n &&
+      !sharedState.inCountdown
     ) {
       if (typeof cb === 'function') cb();
-      showResults();
+      alertResults();
     }
     // if we've gone 18s without a hit, simulate one so they don't get bored
     else if (now - sharedState.chunkStartTime > 18000) {
@@ -197,44 +242,47 @@
         getNextChunk();
       // wait until after render to update sharedState.currentChunk = nextChunk
 
-      // if we passed on the first branch, the other branch must have a visited
-      // link in it so we can skip that check & dive straight into it
-      if (currentLength !== sharedState.n && currentLength === nextChunk.length) {
-        splitToStack(nextChunk);
-        step(cb);
-      } else {
-        // populate is going to queue a big render...
-        sharedState.isRendering = true;
-        sharedState.preRenderTime = new Date().getTime();
-        populate(nextChunk);
-        // ...so we async this so that state only changes after the render...
-        window.setImmediate(function () {
-          // ...then push it to the back of the task queue
-          // again to let keyHandler resolve first.
+      // if we're not out of URLs...
+      if (nextChunk !== null) {
+        // if we passed on the first branch, the other branch must have a visited
+        // link in it so we can skip that check & dive straight into it
+        if (currentLength !== sharedState.n && currentLength === nextChunk.length) {
+          splitToStack(nextChunk);
+          step(cb);
+        } else {
+          // populate is going to queue a big render...
+          sharedState.isRendering = true;
+          sharedState.preRenderTime = new Date().getTime();
+          populate(nextChunk);
+          // ...so we async this so that state only changes after the render...
           window.setImmediate(function () {
-            // the render is done. hurrah.
-            sharedState.isRendering = false;
-            sharedState.stepTime = new Date().getTime();
+            // ...then push it to the back of the task queue
+            // again to let keyHandler resolve first.
+            window.setImmediate(function () {
+              // the render is done. hurrah.
+              sharedState.isRendering = false;
+              sharedState.stepTime = new Date().getTime();
 
-            // run the callback if it exists
-            if (typeof cb === 'function') cb();
+              // run the callback if it exists
+              if (typeof cb === 'function') cb();
 
-            // we're safe to change state now, since handleKeydown will
-            // have already passed the old state to splitToStack
-            sharedState.currentChunk = nextChunk;
-
-            // if we're not paused, step again in [1000, 1200)ms + render time
-            //
-            // longer than linear version to (hopefully) avoid someone hitting
-            // spacebar during render, which causes awkwardness (rendering the
-            // next step, rerendering the current step, then displaying score)
-            if (!sharedState.paused) {
-              sharedState.nextStep = window.setTimeout(function () {
-                step();
-              }, Math.floor((Math.random() * 200) + 1000));
-            }
+              // we're safe to change state now, since handleKeydown will
+              // have already passed the old state to splitToStack
+              sharedState.currentChunk = nextChunk;
+gameOver();
+              // if we're not paused, step again in [1000, 1200)ms + render time
+              //
+              // longer than linear version to (hopefully) avoid someone hitting
+              // spacebar during render, which causes awkwardness (rendering the
+              // next step, rerendering the current step, then displaying score)
+              if (!sharedState.paused) {
+                sharedState.nextStep = window.setTimeout(function () {
+                  step();
+                }, Math.floor((Math.random() * 200) + 1000));
+              }
+            });
           });
-        });
+        }
       }
     }
   }
@@ -291,7 +339,7 @@
   }
 
   function handleKeydown (e) {
-    var key = e.key || e.keyCode, now;
+    var key = e.which || e.keyCode, now;
 
     // if space is hit and we're not already counting down...
     if (!sharedState.inCountdown && key === 32) {
