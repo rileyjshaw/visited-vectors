@@ -70,10 +70,18 @@
       swal({
         title: 'Reaction Game',
         text: 'The game lasts for a minute; feel free to keep playing if you ' +
-        ' wish to improve your results.\n\nAll code is on GitHub and ' +
-        'feedback is very welcome.\n\nThis game will not work in your ' +
-        'browser\'s private browsing or incognito modes.'
-      }, fn);
+          ' wish to improve your results.\n\nAll code is on GitHub and ' +
+          'feedback is very welcome.\n\nThis game will not work in your ' +
+          'browser\'s private browsing or incognito modes.',
+        closeOnConfirm: false
+      }, function () {
+        swal({
+          title: 'Reaction Game',
+          text: 'Since this is just a proof-of-concept, gameplay has been ' +
+            'optimized only for Chrome desktop browsers.\n\nHowever, all ' +
+            'major browsers can support such an attack with minor tweaking.'
+        }, fn);
+      });
     });
   }
 
@@ -246,7 +254,13 @@
       if (nextChunk !== null) {
         // if we passed on the first branch, the other branch must have a visited
         // link in it so we can skip that check & dive straight into it
-        if (currentLength !== sharedState.n && currentLength === nextChunk.length) {
+        if (
+          currentLength !== sharedState.n &&
+          currentLength === nextChunk.length &&
+          // always check single entries explicitly; much harder to get a false
+          // positive this way
+          currentLength !== 1
+        ) {
           splitToStack(nextChunk);
           step(cb);
         } else {
