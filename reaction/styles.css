@@ -30,11 +30,13 @@ p {
 }
 
 .text :nth-child(odd) {
+  margin-left: 6px; /* correct centering with letter-spacing */
   font-size: 24px;
   letter-spacing: 12px;
 }
 
 .text :nth-child(even) {
+  margin-left: 5px; /* correct centering with letter-spacing */
   font-size: 30px;
   font-weight: 900;
   letter-spacing: 10px;
@@ -165,12 +167,6 @@ p {
 .forkme::after{
   top: auto;
   bottom: 1px;
-}
-
-@media screen and (min-width: 600px) {
-  .forkme {
-
-  }
 }
 
 .sweet-alert {
