@@ -78,7 +78,7 @@
         swal({
           title: 'Reaction Game',
           text: 'Since this is just a proof-of-concept, gameplay has been ' +
-            'optimized only for Chrome desktop browsers.\n\nHowever, all ' +
+            'optimized only for Chrome desktop browsers.\n\nAll ' +
             'major browsers can support such an attack with minor tweaking.'
         }, fn);
       });
@@ -134,6 +134,8 @@
   }
 
   function initialize () {
+    var request, container, i;
+
     // update copy for mobile devices
     if (isMobile) {
       document.getElementById('verb').textContent = 'Tap';
@@ -142,8 +144,6 @@
 
     // show info screens
     alertInfo(function () {
-      var request, container, i;
-
       // set event listeners only after the last info screen
       if (isMobile) {
         window.addEventListener('touchstart', function () {
