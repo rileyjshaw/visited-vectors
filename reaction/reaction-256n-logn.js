@@ -99,10 +99,10 @@
       swal({
         title: final ? 'Finished!' : 'We found something!',
         text: 'We probed ' + sharedState.probed + ' sites and found ' +
-          visLength + ' matches in your history. It looks like you ' +
-          'might be interested in:\n\n ' + top4 + '\n\nCheck the console ' +
-          'for details' + (final ? '.' : ', and keep playing if you\'re ' +
-          'curious :-)'),
+          visLength + ' match' + (visLength > 1 ? 'es' : '') + ' in your ' +
+          'history. It looks like you might be interested in:\n\n ' + top4 +
+          '\n\nCheck the console for details' + (final ? '.' : ', and keep ' +
+          'playing if you\'re curious :-)'),
         type: 'success',
         confirmButtonText: final ? 'Retry' : 'Okay'
       }, final);
@@ -153,7 +153,6 @@
         window.addEventListener('keydown', handleKeydown, false);
       }
     });
-
 
     // grab targeted sites in the background
     request = new XMLHttpRequest();

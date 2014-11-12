@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Reaction Game</title>
+  <link rel="stylesheet" href="../bower_components/sweetalert/lib/sweet-alert.css">
+  <link rel="stylesheet" href="styles.css">
+  <link href='http://fonts.googleapis.com/css?family=Raleway:400,900' rel='stylesheet' type='text/css'>
+</head>
+<body>
+  <a class="forkme" href="https://github.com/rileyjshaw/visited-vectors">Fork me on GitHub</a>
+  <div class="text top"><p>This is a</p><p>reaction</p><p>game</p></div>
+  <div id="container" class="blocking">
+    <div id="blocker">
+      <p class="warning top">Bad!</p>
+      <p id="ms"></p>
+      <p class="warning bottom">The box wasn't red.</p>
+      <div id="innerblocker"></div>
+    </div>
+  </div>
+  <div class="text bottom"><p id="verb">Hit</p><p id="noun">space</p><p id="instructions">to start</p></div>
+
+  <script src="../bower_components/setImmediate/setImmediate.js"></script>
+  <script src="../bower_components/sweetalert/lib/sweet-alert.min.js"></script>
+  <script src="reaction-n-n.js"></script>
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-48709534-1', 'rileyjshaw.com');
+    ga('require', 'displayfeatures');
+    ga('send', 'pageview');
+
+  </script>
+</body>
+</html>
