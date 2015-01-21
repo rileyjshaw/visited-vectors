@@ -44,7 +44,10 @@
     swal({
       title: 'Reaction Game',
       text: 'This proof-of-concept uses the CSS :visited selector to ' +
-        'steal history. It is 100% client-side; no data is recorded!',
+        'steal history. It is 100% client-side; no data is recorded!\n\n' +
+        'Since publishing an article on this vector, Chrome and FF have changed ' +
+        'their alpha-blending functions. The demo likely won\'t work anymore.' +
+        'This is good news!!',
       confirmButtonText: 'Continue',
       closeOnConfirm: false
     }, function () {

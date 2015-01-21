@@ -63,7 +63,10 @@
       title: 'Reaction Game',
       text: 'This proof-of-concept combines a CSS n-to-2n decoder circuit, ' +
         'search trees, and the CSS :visited selector to steal history. ' +
-        'It is 100% client-side; no data is recorded, I promise!',
+        'It is 100% client-side; no data is recorded, I promise!\n\nSince ' +
+        'publishing an article on this vector, Chrome and FF have changed their ' +
+        'alpha-blending functions. The demo likely won\'t work anymore. This is ' +
+        'good news!!',
       confirmButtonText: 'Continue',
       closeOnConfirm: false
     }, function () {
