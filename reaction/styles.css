@@ -110,7 +110,7 @@ p {
 }
 
 .non-blocking .warning {
-  color: red;
+  color: rgb(255, 128, 126);  /* Works with Firefox 67.0b2 on macOS */
 }
 
 .blocking #ms {

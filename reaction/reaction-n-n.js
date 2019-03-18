@@ -45,7 +45,7 @@
       title: 'Reaction Game',
       text: 'This proof-of-concept uses the CSS :visited selector to ' +
         'steal history. It is 100% client-side; no data is recorded!\n\n' +
-        'Since publishing an article on this vector, Chrome and FF have changed ' +
+        'Since publishing an article on this vector, Chrome and Firefox have changed ' +
         'their alpha-blending functions. The demo likely won\'t work anymore.' +
         'This is good news!!',
       confirmButtonText: 'Continue',
@@ -63,7 +63,7 @@
         swal({
           title: 'Reaction Game',
           text: 'Since this is just a proof-of-concept, gameplay has been ' +
-            'optimized only for Chrome desktop browsers.\n\nAll ' +
+            'optimized only for Firefox desktop browsers.\n\nAll ' +
             'major browsers can support such an attack with minor tweaking.'
         }, fn);
       });
