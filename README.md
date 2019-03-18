@@ -10,8 +10,9 @@ Inspiration and site-list grabbed from [here](https://github.com/Conlectus/WhoAm
 ## Demos
 Currently I've only got one game up and running:
 
-###Reaction game
-[Demo](http://rileyjshaw.com/visited-vectors/reaction/) | [Linear version](http://rileyjshaw.com/visited-vectors/reaction/linear.html) | [Blog post](http://rileyjshaw.com/blog/stealing-history-with-CSS-binary-trees/)
+### Reaction game
+
+[Demo](https://rileyjshaw.com/visited-vectors/reaction/) | [Linear version](https://rileyjshaw.com/visited-vectors/reaction/linear.html) | [Blog post](https://rileyjshaw.com/blog/stealing-history-with-CSS-binary-trees/)
 
 ## License
 [MIT](./LICENSE)
